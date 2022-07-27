@@ -3,16 +3,18 @@
     <div class="grid-container">
       <div 
         v-for="category in categories" :key="category.id"
+        :ref="el => {column[category.id] = el}"
         class="grid"  
         @drop="onDrop($event, category.id)"
+        @dragenter="onDragEnter($event, category.id)"
+        @dragleave="onDragLeave(category.id)"
         @dragover.prevent
-        @dragenter.prevent
       >
         <div class="title-column">
           <h2>{{category.title}}</h2>
         </div>
 
-        <div 
+        <div
           v-for="item in items.filter(x => x.categoryId === category.id)" :key="item"
           class="card"
           @dragstart="onDragStart($event, item)" 
@@ -34,10 +36,15 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onBeforeUpdate } from 'vue'
 
 export default {
   setup(){
+    const column = ref([])
+    onBeforeUpdate(() => {
+      column.value = []
+    })
+
     const items = ref([
       {
         id:1,
@@ -76,25 +83,50 @@ export default {
       }
     ])
     
-    function onDragStart(e,item){
-      e.dataTransfer.dropEffect = 'move'
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('itemId', item.id.toString())
+    function onDragStart(event,item){
+      event.dataTransfer.dropEffect = 'move'
+      event.dataTransfer.effectAllowed = 'move'
+      event.dataTransfer.setData('itemId', item.id.toString())
     }
-    function onDrop(e, categoryId) {
-      const itemId = parseInt(e.dataTransfer.getData('itemId'))
-      items.value = items.value.map(x => {
-        if(x.id === itemId){
-          x.categoryId = categoryId
+
+    function onDrop(event, categoryId) {
+      const itemId = parseInt(event.dataTransfer.getData('itemId'))
+      items.value = items.value.map(item => {
+        if (categoryId === 1 && item.categoryId !== 1 || categoryId !== 1 && item.categoryId === 1){
+          column.value[categoryId].style.backgroundColor = ''
+          return item
         }
-        return x
+        if(item.id === itemId){
+          column.value[categoryId].style.backgroundColor = ''
+          item.categoryId = categoryId
+        }
+        return item
       })
     }
+
+    function onDragEnter(event, ref) {
+      event.preventDefault()
+      if (ref === 1) {
+        column.value[ref].style.backgroundColor = 'red'
+      }else{
+        column.value[ref].style.backgroundColor = 'green'
+      }
+    }
+
+    function onDragLeave (ref) {
+      if(column.value[ref].style.backgroundColor === 'red' || column.value[ref].style.backgroundColor === 'green'){
+        column.value[ref].style.backgroundColor = ''
+      }
+    }
+
     return{
+      column,
       items,
       categories,
       onDrop,
-      onDragStart
+      onDragStart,
+      onDragEnter,
+      onDragLeave
     }
   }
 }
@@ -105,7 +137,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(3,1fr);
   .grid{
-    border: 1px dotted black;
     .card{
       background-color: rgb(255, 255, 255);
       border-radius: 4px;
