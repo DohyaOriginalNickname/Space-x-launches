@@ -13,22 +13,40 @@
         <div class="title-column">
           <h2>{{category.title}}</h2>
         </div>
-
-        <div
-          v-for="item in items.filter(x => x.categoryId === category.id)" :key="item"
-          class="card"
-          @dragstart="onDragStart($event, item)" 
-          draggable="true" 
-        >
-          <div class="card__title">
-            <p>{{item.title}}</p>
+        
+        <div v-if="category.id === 1">
+          <div 
+            v-for="item in items.filter(x => x.categoryId === category.id)" :key="item"
+            class="card"
+          >
+            <div class="card__title">
+              <p>{{item.title}}</p>
+            </div>
+            <div class="card__time">
+              <p>{{item.date}}</p>
+            </div>
+            <div class="card__description">
+              <p>{{item.description}}</p>
+            </div>  
           </div>
-          <div class="card__time">
-            <p>{{item.date}}</p>
+        </div>
+        <div v-else>
+          <div
+            v-for="item in items.filter(x => x.categoryId === category.id)" :key="item"
+            class="card"
+            @dragstart="onDragStart($event, item)" 
+            draggable="true" 
+          >
+            <div class="card__title">
+              <p>{{item.title}}</p>
+            </div>
+            <div class="card__time">
+              <p>{{item.date}}</p>
+            </div>
+            <div class="card__description">
+              <p>{{item.description}}</p>
+            </div>  
           </div>
-          <div class="card__description">
-            <p>{{item.description}}</p>
-          </div>  
         </div>
       </div>
     </div>
