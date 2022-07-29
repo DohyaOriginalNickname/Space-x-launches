@@ -18,6 +18,7 @@
           <div 
             v-for="item in items.filter(x => x.categoryId === category.id)" :key="item"
             class="card"
+            @dragstart.prevent
           >
             <div class="card__title">
               <p>{{item.title}}</p>
@@ -50,6 +51,12 @@
         </div>
       </div>
     </div>
+
+    <div class="snackbar" ref="snackbar">
+      <p>
+        Событие успешно добавлено!
+      </p>
+    </div>
   </div>
 </template>
 
@@ -59,6 +66,8 @@ import { ref, onBeforeUpdate } from 'vue'
 export default {
   setup(){
     const column = ref([])
+    const snackbar = ref('')
+
     onBeforeUpdate(() => {
       column.value = []
     })
@@ -117,6 +126,9 @@ export default {
         if(item.id === itemId){
           column.value[categoryId].style.backgroundColor = ''
           item.categoryId = categoryId
+          if (item.categoryId === 3) {
+            showSnacbar()
+          }
         }
         return item
       })
@@ -137,10 +149,16 @@ export default {
       }
     }
 
+    function showSnacbar () {
+      snackbar.value.className = 'snackbar show'
+      setTimeout(()=>{ snackbar.value.className = snackbar.value.className.replace('snackbar show', 'snackbar')}, 2000)
+    }
+
     return{
       column,
       items,
       categories,
+      snackbar,
       onDrop,
       onDragStart,
       onDragEnter,
@@ -182,5 +200,34 @@ export default {
       padding: 10px 0 0 10px;
     }
   }
+}
+
+.snackbar{
+  visibility: hidden; 
+  min-width: 250px; 
+  background-color: white; 
+  color: black; 
+  text-align: center; 
+  padding: 16px; 
+  position: fixed; 
+  z-index: 1; 
+  left: calc(50% - 250px/2); 
+  bottom: 30px; 
+  box-sizing: border-box;
+  box-shadow: 2px 2px 4px rgba(11, 26, 34, 0.12);
+  border-radius: 8px;
+}
+
+.show {
+  visibility: visible;
+  animation: fadein .6s, fadeout 0.8s 1.5s;
+}
+@keyframes fadein {
+  from { opacity: 0;}
+  to {opacity: 1;}
+}
+@keyframes fadeout {
+  from { opacity: 1;}
+  to { opacity: 0;}
 }
 </style>
