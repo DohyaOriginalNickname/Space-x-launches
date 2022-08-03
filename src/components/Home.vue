@@ -5,9 +5,9 @@
         v-for="category in categories" :key="category.id"
         :ref="el => {column[category.id] = el}"
         class="grid"  
-        @drop="onDrop($event, category.id)"
-        @dragenter="onDragEnter($event, category.id)"
-        @dragleave="onDragLeave(category.id)"
+        @drop="onDrop($event, category.id, items, column, snackbar)"
+        @dragenter="onDragEnter($event, category.id, column)"
+        @dragleave="onDragLeave(category.id, column)"
         @dragover.prevent
       >
         <div class="title-column">
@@ -62,6 +62,10 @@
 
 <script>
 import { ref, onBeforeUpdate } from 'vue'
+import onDragStart from './main events/onDragStart'
+import onDrop from './main events/onDrop'
+import onDragEnter from './main events/onDragEnter'
+import onDragLeave from './main events/onDragLeave'
 
 export default {
   setup(){
@@ -116,62 +120,6 @@ export default {
         title:'My Launches'
       }
     ])
-    
-    function onDragStart(event,item){
-      event.dataTransfer.dropEffect = 'move'
-      event.dataTransfer.effectAllowed = 'move'
-      event.dataTransfer.setData('itemId', item.id.toString())
-    }
-
-    function onDrop(event, categoryId) {
-      const itemId = parseInt(event.dataTransfer.getData('itemId'))
-      items.value = items.value.map(item => {
-        if (categoryId === 1 && item.categoryId !== 1){
-          column.value[categoryId].style.backgroundColor = ''
-          return item
-        }
-        if(item.id === itemId){
-          column.value[categoryId].style.backgroundColor = ''
-          if (categoryId === 2) {
-            if(showModalWindow() === true){
-              item.categoryId = categoryId
-            }else{
-              return item
-            }
-          }else{
-            item.categoryId = categoryId
-            showSnacbar()
-          }
-        }
-        return item
-      })
-    }
-
-    function onDragEnter(event, ref) {
-      event.preventDefault()
-      if (ref === 1) {
-        column.value[ref].style.backgroundColor = 'red'
-      }else{
-        column.value[ref].style.backgroundColor = 'green'
-      }
-    }
-
-    function onDragLeave (ref) {
-      if(column.value[ref].style.backgroundColor === 'red' || column.value[ref].style.backgroundColor === 'green'){
-        column.value[ref].style.backgroundColor = ''
-      }
-    }
-
-    function showSnacbar () {
-      snackbar.value.className = 'snackbar show'
-      setTimeout(()=>{ snackbar.value.className = 'snackbar'}, 2000)
-    }
-
-    function showModalWindow() {
-      return window.confirm('Do you want to delete the event?')
-    }
-    
-
     return{
       column,
       items,
