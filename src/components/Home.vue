@@ -94,6 +94,13 @@ export default {
         description:'lobac?????? 1000-7777777777777777777777777777777777777 zxc gulya ya ebal',
         categoryId: 2
       },
+      {
+        id:4,
+        title:'xXx_$koLYAN$3',
+        date:'12.34.5.6. 11111:30:42141 pipipipi aam',
+        description:'lobac?????? 1000-7777777777777777777777777777777777777 zxc gulya ya ebal',
+        categoryId: 2
+      },
     ])
     const categories = ref([
       {
@@ -119,14 +126,20 @@ export default {
     function onDrop(event, categoryId) {
       const itemId = parseInt(event.dataTransfer.getData('itemId'))
       items.value = items.value.map(item => {
-        if (categoryId === 1 && item.categoryId !== 1 || categoryId !== 1 && item.categoryId === 1){
+        if (categoryId === 1 && item.categoryId !== 1){
           column.value[categoryId].style.backgroundColor = ''
           return item
         }
         if(item.id === itemId){
           column.value[categoryId].style.backgroundColor = ''
-          item.categoryId = categoryId
-          if (item.categoryId === 3) {
+          if (categoryId === 2) {
+            if(showModalWindow() === true){
+              item.categoryId = categoryId
+            }else{
+              return item
+            }
+          }else{
+            item.categoryId = categoryId
             showSnacbar()
           }
         }
@@ -151,8 +164,13 @@ export default {
 
     function showSnacbar () {
       snackbar.value.className = 'snackbar show'
-      setTimeout(()=>{ snackbar.value.className = snackbar.value.className.replace('snackbar show', 'snackbar')}, 2000)
+      setTimeout(()=>{ snackbar.value.className = 'snackbar'}, 2000)
     }
+
+    function showModalWindow() {
+      return window.confirm('Do you want to delete the event?')
+    }
+    
 
     return{
       column,
